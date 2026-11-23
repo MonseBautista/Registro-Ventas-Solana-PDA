@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-declare_id!("");
+declare_id!("6SS5gUpmFtsJt12V7jrauNat1HyEdAy7buT4UGwLXkGd");
 
 #[program]
 pub mod registro {
@@ -57,6 +57,7 @@ pub mod registro {
         descripcion: String,
         monto: u32,
     ) -> Result<()> {
+        require!(monto > 0, Errores::MontoInvalido);
         context.accounts.venta.set_inner(Venta {
             sku,
             descripcion,
@@ -129,6 +130,33 @@ pub mod registro {
         Ok(())
     }
 }
+/////////////////////////// Dar de Baja Cliente ///////////////////////////
+
+pub fn dar_baja_cliente(context: Context<BajaCliente>, _id_cliente: u16) -> Result<()> {
+    let cliente_key = context.accounts.cliente.key();
+
+    // Solo se permite eliminar clientes sin ventas pendientes.
+    require!(
+        context.accounts.cliente.historial.is_empty(),
+        Errores::ClienteConVentas
+    );
+
+    let registro = &mut context.accounts.registro;
+
+    // Verificar que el cliente esté registrado.
+    let posicion = registro
+        .clientes
+        .iter()
+        .position(|key| *key == cliente_key)
+        .ok_or(Errores::ClienteNoRegistrado)?;
+
+    // Eliminar la referencia del registro.
+    registro.clientes.remove(posicion);
+
+    msg!("Cliente con PDA {} dado de baja correctamente", cliente_key);
+
+    Ok(())
+}
 
 /////////////////////////// Codigos de Error ///////////////////////////
 #[error_code]
@@ -137,6 +165,14 @@ pub enum Errores {
     NoOwner,
     #[msg("Error, la venta no esta en el historial del cliente")]
     NoSKU,
+    #[msg("No se permiten ventas con monto igual a cero")]
+    MontoInvalido,
+
+    #[msg("No se puede dar de baja un cliente que tiene ventas pendientes")]
+    ClienteConVentas,
+
+    #[msg("El cliente no se encuentra registrado en el negocio")]
+    ClienteNoRegistrado,
 }
 
 /////////////////////////// CUENTAS ///////////////////////////
@@ -331,4 +367,30 @@ pub struct EliminarVenta<'info> {
         bump
     )]
     pub venta: Account<'info, Venta>,
+}
+/////////////////////////// Baja de Cliente ///////////////////////////
+
+#[derive(Accounts)]
+#[instruction(id_cliente: u16)]
+pub struct BajaCliente<'info> {
+    #[account(mut)]
+    pub owner: Signer<'info>,
+
+    #[account(
+        mut,
+        has_one = owner @ Errores::NoOwner
+    )]
+    pub registro: Account<'info, Registro>,
+
+    #[account(
+        mut,
+        close = owner,
+        seeds = [
+            b"cliente",
+            registro.key().as_ref(),
+            id_cliente.to_le_bytes().as_ref()
+        ],
+        bump
+    )]
+    pub cliente: Account<'info, Cliente>,
 }

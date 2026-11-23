@@ -200,6 +200,22 @@ async function cambiarMonto(nombre_negocio, id_cliente, sku, nuevo_monto) {
 
   console.log("txHash: ", txHash);
 }
+//////////////////// Dar de Baja Cliente ////////////////////
+
+async function darBajaCliente(nombre_negocio, id_cliente) {
+  const { registro, cliente } = cadena(nombre_negocio, id_cliente, "");
+
+  const txHash = await pg.program.methods
+    .darBajaCliente(id_cliente)
+    .accounts({
+      owner: owner,
+      registro: registro,
+      cliente: cliente,
+    })
+    .rpc();
+
+  console.log("Cliente dado de baja correctamente. TX:", txHash);
+}
 
 //////////////////// Ver Clientes ////////////////////
 /*
@@ -262,6 +278,22 @@ async function verClientes(nombre_negocio) {
     if (error.message) console.error("Mensaje de error:", error.message);
     if (error.logs) console.error("Logs del programa:", error.logs);
   }
+}
+//////////////////// Dar de Baja Cliente ////////////////////
+
+async function darBajaCliente(nombre_negocio, id_cliente) {
+  const { registro, cliente } = cadena(nombre_negocio, id_cliente, "");
+
+  const txHash = await pg.program.methods
+    .darBajaCliente(id_cliente)
+    .accounts({
+      owner: owner,
+      registro: registro,
+      cliente: cliente,
+    })
+    .rpc();
+
+  console.log("Cliente dado de baja correctamente. TX:", txHash);
 }
 
 //////////////////// Alta de un cliente nuevo ////////////////////
