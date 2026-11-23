@@ -101,4 +101,4 @@ El desarrollo permitió trabajar con contratos inteligentes en Rust, cuentas PDA
 ---
 
 **Proyecto académico – Registro de Ventas en Solana PDA**  
-**Desarrollado por:** Myriam Rodriguez Sanchez
+
