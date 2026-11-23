@@ -1,62 +1,104 @@
-# Registro de Ventas en Solana con PDAs
+# Registro de Ventas en Solana – Proyecto Mejorado
 
-![banner](./images/banner.jpg)
+## 1. Descripción del proyecto
 
-CRUD básico de un Solana Program desarrollado con Rust y Anchor desde el Solana Playground. 
+Este proyecto consiste en un sistema de registro de ventas desarrollado mediante **Solana, Rust y Anchor**, que permite administrar un negocio, registrar clientes, realizar ventas, modificar montos y gestionar devoluciones utilizando cuentas PDA (Program Derived Addresses).
 
-Puedes comenzar dándole Fork a este repositorio (abajo te explicamos como 👇), **hemos preparado un entorno de codespaces listo para que no tengas que instalar nada**, solo déjate llevar por la fluidez de los ejercicios y temas desarrollados especialmente para ti. 
+El proyecto parte del repositorio base:
 
-Asegúrate de clonar este repositorio a tu cuenta usando el botón **`Fork`**.
+[Registro-Ventas-Solana-PDA – WayLearnLatam](https://github.com/WayLearnLatam/Registro-Ventas-Solana-PDA)
 
-![fork](./images/fork.png)
+## 2. Tecnologías utilizadas
 
-## Importando el proyecto 
+- Solana
+- Rust
+- Anchor Framework
+- TypeScript
+- Solana Playground
+- GitHub
+- Solana Devnet
 
-Ya con el repositorio en tu cuenta lo siguiente que debes hacer copiar el `enlace de tu repositorio`, lo que se puede hacer directamente desdel navegador:
+## 3. Funcionalidades originales
 
-![repo](./images/repo.png)
+El proyecto incluye las siguientes operaciones:
 
-Posteriormente, lo uniremos con el siguiente enlace en nuestro navegador de preferencia:
+- Creación del registro del negocio.
+- Registro de clientes.
+- Registro de ventas.
+- Modificación del monto de una venta.
+- Devolución de ventas.
+- Administración de cuentas mediante PDA.
 
-```url
-https://beta.solpg.io/
-```
+## 4. Mejoras funcionales implementadas
 
-Lo que nos dará algo parecido a:
+Se incorporaron mejoras para fortalecer las validaciones y la administración de clientes.
 
-![url](./images/url.png)
+### 4.1 Validación de monto de venta
 
-Puedes importar directamenet el proyecto al `Solana Playground` dando clic al siguiente enlace 👇:
+Se agregó una validación para impedir que se registren ventas con monto igual a cero.
 
-[ 🔗 Importar repositorio al Playground ](https://beta.solpg.io/https://github.com/WayLearnLatam/Registro-Ventas-Solana-PDA)
+La instrucción utilizada es:
 
-Al pulsar enter seremos enviados al `Solana Playground` con nuestro proyecto abierto:
+`require!(monto > 0, Errores::MontoInvalido);`
 
-![pg](./images/pg.png)
+Con esta validación, el programa rechaza operaciones que no cumplen con el monto mínimo permitido.
 
-Para guardarlo solo damos clic en el boton `import` y asignamos un nombre:
+### 4.2 Baja de clientes
 
-![import](./images/import.png)
+Se agregó la instrucción `dar_baja_cliente`, que permite eliminar un cliente del registro del negocio.
 
-## Preparacion del entorno
+La operación contempla las siguientes condiciones:
 
-Primero conectaremos el entorno con la devnet, lo que tambien procederá a la creación de una wallet. Para eso daremos clic en donde dice **Not Conected**:
+- El cliente no debe tener ventas pendientes en su historial.
+- El cliente debe encontrarse registrado en el negocio.
+- Se elimina su referencia del vector de clientes.
+- Se cierra la cuenta PDA del cliente y se devuelve su saldo al propietario.
 
-![playground1](./images/playground1.png)
+### 4.3 Nuevos errores
 
-Saldrá la siguiente ventana donde daremos en el botón **Continue**:
+Se incorporaron los siguientes errores personalizados:
 
-![wallet](./images/wallet.png)
+- `MontoInvalido`: cuando se intenta registrar una venta con monto cero.
+- `ClienteConVentas`: cuando se intenta dar de baja a un cliente con ventas pendientes.
+- `ClienteNoRegistrado`: cuando el cliente no se encuentra en el registro.
 
-Como resultado se mostrará la siguiente información:
+## 5. Pruebas funcionales
 
-![status](./images/status.png)
+Se preparó un conjunto de pruebas para comprobar las operaciones del sistema:
 
-* En verde: el estado de la conexión y el entorno al que se encuentra conectado
+1. Creación del registro.
+2. Creación del cliente.
+3. Rechazo de ventas con monto cero.
+4. Registro de una venta válida.
+5. Rechazo de baja de clientes con ventas pendientes.
+6. Devolución de una venta.
+7. Baja del cliente sin ventas pendientes.
 
-* En amarillo: la la dirección de la wallet conectada
+**Resultado de verificación:** la compilación del programa fue exitosa y el despliegue en Solana Devnet se completó correctamente.
 
-* En azul: la cantidad de tokens en la wallet
+Durante la ejecución de las pruebas se identificó un problema de reconocimiento de la instrucción `darBajaCliente` en el cliente Anchor (IDL). Por ello, la prueba integral quedó pendiente de corrección y nueva ejecución.
 
-> ℹ️ ¿Quieres ver el ejemplo de un "Hola Mundo" en Solana?. Da clic aquí: 👉 [Ver Ejemplo](https://github.com/WayLearnLatam/Solana-starter-kit/tree/1fc6349ba63375a3fe223d8d56911bc64765459b/build-deploy)
+## 6. Despliegue
 
+El programa se compiló y desplegó exitosamente en la red **Solana Devnet** mediante Solana Playground.
+
+## 7. ¿Cómo verificar el proyecto?
+
+1. Clonar o descargar este repositorio.
+2. Abrir el proyecto en Solana Playground.
+3. Revisar el código de `src/lib.rs`.
+4. Ejecutar la opción Build para compilar el programa.
+5. Revisar `client/client.ts` para conocer las llamadas a las instrucciones.
+6. Ejecutar las pruebas de `tests/anchor.test.ts`.
+7. Verificar el despliegue en Solana Devnet.
+
+## 8. Conclusión
+
+El proyecto amplía el sistema original de registro de ventas mediante validaciones adicionales y una nueva operación de baja de clientes. Estas mejoras buscan fortalecer la integridad de los datos y evitar operaciones inconsistentes dentro del registro del negocio.
+
+El desarrollo permitió trabajar con contratos inteligentes en Rust, cuentas PDA, validaciones de Anchor y despliegues sobre Solana Devnet.
+
+---
+
+**Proyecto académico – Registro de Ventas en Solana PDA**  
+**Desarrollado por:** Myriam Rodriguez Sanchez
